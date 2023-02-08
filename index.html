@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小demo</title>
+    <style>
+        .wrapper{
+            width: 300px;
+            height: 100px;
+            border: 1px solid deepskyblue;
+            color: deeppink;
+            font-size: 20px;
+            position: absolute;
+            left: 50%;
+            top:50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            line-height: 100px;
+        }
+        .wrapper span{
+            animation: move 4s infinite ease-in-out;
+        }
+        @keyframes move {
+            0%{
+                opacity: 1;
+            }
+            25%{
+                opacity: 0;
+            }
+            50%{
+                opacity: 1;
+            }
+            75%{
+                opacity: 0;
+            }
+            100%{
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        正在获取中......
+    </div>
+
+    <script>
+        //获取wrapper
+        const dom = document.getElementsByClassName('wrapper')[0];
+        //获取当前时间和年份，月份，天数
+        let date = new Date();
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+        //获取当天19点时毫秒数
+        const myDate = new Date('' + year + '-' + month + '-' + day + ' ' + '19:00:00');
+        const eatDate = new Date('' + year + '-' + month + '-' + day + ' ' + '11:30:00');
+        //渲染到页面上的数据
+        const mytime = {
+            hours: 0,
+            minutes: 0,
+            seconds: 0
+        };
+        /*
+        *   getCountDown获取倒计时函数
+        *   currentTime 当前时间
+        *   targetTime  目标时间
+        */
+        const getCountDown = (currentTime, targetTime) => {
+            //获取距离当天19点还有多少毫秒
+            let time = targetTime - currentTime;
+            let time_seconds = parseInt(time / 1000);
+            time_seconds = timeJudge('hours', time_seconds);
+            time_seconds = timeJudge('minutes', time_seconds);
+            time_seconds = timeJudge('seconds', time_seconds);
+        }
+        //根据日期单位不同分别去做处理
+        const timeJudge = (company, time_seconds) => {
+            let num;
+            if(company === 'hours'){
+                num = 3600;
+            }else if(company === 'minutes'){
+                num = 60;
+            }else if(company === 'seconds'){
+                num = 0;
+            }
+            if(time_seconds > num ){
+                if(company !== 'seconds'){
+                    let number = parseInt(time_seconds / num);
+                    mytime[company] = number;
+                    time_seconds = time_seconds - number *  num;
+                }else{
+                    mytime[company] = time_seconds;
+                }
+            }else{
+                mytime[company] = 0;
+            }
+            return time_seconds;
+        }
+        getCountDown(date.getTime(), myDate.getTime())
+
+        //计算函数
+        const calculationTime = () => {
+            if(mytime.hours === 0 && mytime.minutes === 0 && mytime.seconds === 0){
+                clearInterval(timer);
+                return '已经到达目标时间~'
+            }else{
+                if(mytime.seconds === 0){
+                    mytime.seconds = 59;
+                    if(mytime.minutes === 0){
+                        mytime.hours -= 1;
+                        mytime.minutes = 59;
+                    }else{
+                        mytime.minutes -= 1;
+                    }
+                }else{
+                    mytime.seconds -= 1;
+                }
+            }
+        }
+
+        //渲染函数
+        const domrender = () => {
+            let text = calculationTime();
+            if(text){
+                dom.innerHTML = text;
+                return;
+            }
+            let hours = mytime.hours < 10 ? '0' + mytime.hours : mytime.hours;
+            let minutes = mytime.minutes < 10 ? '0' + mytime.minutes : mytime.minutes;
+            let seconds = mytime.seconds < 10 ? '0' + mytime.seconds : mytime.seconds;
+
+            dom.innerHTML = hours + ' <span>:</span> ' + minutes + ' <span>:</span> ' + seconds;
+        }
+
+        //循环
+        let timer = setInterval(() => {
+            domrender();
+        }, 1000)
+
+    </script>
+</body>
+</html>
